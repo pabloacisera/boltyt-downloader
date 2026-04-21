@@ -2,14 +2,13 @@ import { app, BrowserWindow, ipcMain, dialog, protocol, net } from "electron";
 import { spawn } from "child_process";
 import { fileURLToPath, pathToFileURL } from "url";
 import { join, dirname } from "path";
-import fs from 'fs';
+import fs, { chmodSync, existsSync, statSync } from 'fs';
 import { downloadRepository } from "./repositories/DownloadRepository.js";
 import { settingsRepository } from "./repositories/SettingsRepository.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-// Registrar el protocolo media:// para cargar archivos locales de forma segura
 protocol.registerSchemesAsPrivileged([
     { scheme: 'media', privileges: { bypassCSP: true, stream: true } }
 ]);
@@ -22,6 +21,40 @@ const binPath = app.isPackaged
 
 const ytDlpPath = join(binPath, isWindows ? 'yt-dlp.exe' : 'yt-dlp');
 const nodePath = join(binPath, isWindows ? 'node.exe' : 'node');
+
+function logBinaryInfo(label, path) {
+    try {
+        if (existsSync(path)) {
+            const stats = statSync(path);
+            const mode = stats.mode.toString(8).slice(-3);
+            console.log(`[INIT] ${label}: ${path}`);
+            console.log(`[INIT] ${label} existe: true, permisos: ${mode}, es ejecutable: ${(stats.mode & 0o111) !== 0}`);
+        } else {
+            console.log(`[INIT] ${label}: ${path} - NO ENCONTRADO`);
+        }
+    } catch (e) {
+        console.log(`[INIT] ${label}: Error al obtener info - ${e.message}`);
+    }
+}
+
+if (app.isPackaged && !isWindows) {
+    console.log('[INIT] Aplicando chmod a binarios empaquetados...');
+    try {
+        chmodSync(ytDlpPath, 0o755);
+        chmodSync(nodePath, 0o755);
+        console.log('[INIT] chmod aplicado correctamente');
+    } catch (e) {
+        console.error('[INIT] Error aplicando chmod:', e);
+    }
+}
+
+console.log('[INIT] === Información de binarios ===');
+logBinaryInfo('yt-dlp', ytDlpPath);
+logBinaryInfo('node', nodePath);
+console.log('[INIT] app.isPackaged:', app.isPackaged);
+console.log('[INIT] app.getAppPath():', app.isPackaged ? app.getAppPath() : 'N/A');
+console.log('[INIT] process.resourcesPath:', app.isPackaged ? process.resourcesPath : 'N/A');
+console.log('[INIT] ==============================');
 
 let downloadsPath = null;
 
@@ -61,11 +94,17 @@ if (!fs.existsSync(ytDlpPath)) {
 }
 
 function createWindow() {
+    const preloadPath = app.isPackaged
+        ? join(app.getAppPath(), 'preload.js')
+        : join(__dirname, 'preload.js');
+    
+    console.log('[INIT] preload path:', preloadPath);
+    
     const window = new BrowserWindow({
         width: 850,
         height: 600,
         webPreferences: {
-            preload: join(__dirname, 'preload.js'), 
+            preload: preloadPath,
             nodeIntegration: false,
             contextIsolation: true
         }
@@ -178,7 +217,12 @@ ipcMain.on("send-url", async (event, url) => {
     console.log("URL recibida:", url);
 
     const browser = settingsRepository.get("browser_name");
-    const args = ["--dump-json", "--skip-download", url];
+    const args = [
+        "--js-runtimes", `node:${nodePath}`,
+        "--dump-json",
+        "--skip-download",
+        url
+    ];
     if (browser) {
         args.unshift("--cookies-from-browser", browser);
     }
@@ -193,6 +237,11 @@ ipcMain.on("send-url", async (event, url) => {
 
     ytProcess.stderr.on('data', (data) => {
         stderr += data.toString();
+    });
+
+    ytProcess.on('error', (err) => {
+        console.error('[send-url] Error al iniciar yt-dlp:', err);
+        event.reply("video-details-error", `Error al iniciar yt-dlp: ${err.message}`);
     });
 
     ytProcess.on('close', (code) => {
@@ -416,4 +465,29 @@ ipcMain.on("delete-video", async (event, id) => {
         console.error(error);
         event.reply("delete-error", "Error al eliminar: " + error.message);
     }
+});
+
+ipcMain.on("debug-info", (event) => {
+    const info = {
+        appVersion: app.getVersion(),
+        isPackaged: app.isPackaged,
+        platform: process.platform,
+        binPath: binPath,
+        ytDlpPath: ytDlpPath,
+        nodePath: nodePath,
+        ytDlpExists: existsSync(ytDlpPath),
+        nodeExists: existsSync(nodePath),
+        ytDlpPermissions: (() => {
+            try {
+                return statSync(ytDlpPath).mode.toString(8).slice(-3);
+            } catch { return 'N/A'; }
+        })(),
+        nodePermissions: (() => {
+            try {
+                return statSync(nodePath).mode.toString(8).slice(-3);
+            } catch { return 'N/A'; }
+        })()
+    };
+    console.log('[debug-info]', info);
+    event.reply("debug-info-response", info);
 });

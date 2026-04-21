@@ -11,7 +11,8 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "nodemon --exec electron .",
-    "publish": "electron-builder --publish always"
+    "publish": "electron-builder --publish always",
+    "postinstall": "electron-builder install-app-deps"
   },
   "keywords": [],
   "license": "ISC",
@@ -22,6 +23,7 @@
   "devDependencies": {
     "electron": "^41.1.1",
     "electron-builder": "^25.1.8",
+    "electron-rebuild": "^3.2.9",
     "nodemon": "^3.1.14"
   },
   "build": {
@@ -33,6 +35,9 @@
         "to": "bin/",
         "filter": ["**/*"]
       }
+    ],
+    "asarUnpack": [
+      "preload.js"
     ],
     "directories": {
       "output": "dist",
