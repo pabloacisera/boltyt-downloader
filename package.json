@@ -27,6 +27,12 @@
   "build": {
     "appId": "com.pabloacisera.boltyt",
     "productName": "Bolt Downloader",
+    "extraResources": [
+      {
+        "from": "bin/",
+        "to": "bin/"
+      }
+    ],
     "directories": {
       "output": "dist",
       "buildResources": "icons"

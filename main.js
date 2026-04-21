@@ -16,8 +16,12 @@ protocol.registerSchemesAsPrivileged([
 
 const isWindows = process.platform === "win32";
 
-const ytDlpPath = join(__dirname, 'bin', isWindows ? 'yt-dlp.exe' : 'yt-dlp');
-const nodePath = join(__dirname, 'bin', isWindows ? 'node.exe' : 'node');
+const binPath = app.isPackaged
+    ? join(process.resourcesPath, 'bin')
+    : join(__dirname, 'bin');
+
+const ytDlpPath = join(binPath, isWindows ? 'yt-dlp.exe' : 'yt-dlp');
+const nodePath = join(binPath, isWindows ? 'node.exe' : 'node');
 
 let downloadsPath = null;
 
