@@ -1,0 +1,16 @@
+ ¿Cómo hacer el primer release?
+  Cuando estés listo para generar los ejecutables, solo debes ejecutar estos comandos desde tu terminal:
+
+   1 git add .
+   2 git commit -m "Configuración de CI/CD para releases automáticos"
+   3 git push origin master
+   4 git tag v1.0.0
+   5 git push origin v1.0.0
+
+  ¿Qué pasará después?
+  GitHub detectará el tag v1.0.0, activará sus máquinas virtuales, compilará la app y, en unos minutos, verás aparecer en la sección Releases de tu
+  repositorio de GitHub los archivos:
+   * YoutubeDownload V2 Setup 1.0.0.exe
+   * youtubedownload_1.0.0_amd64.deb
+
+  ¡Tu sistema de despliegue profesional ya está listo! ¿Hay algo más en lo que pueda ayudarte?

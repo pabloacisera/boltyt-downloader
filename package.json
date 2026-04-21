@@ -1,0 +1,47 @@
+{
+  "name": "youtube_download_app",
+  "version": "1.0.0",
+  "description": "",
+  "main": "main.js",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "nodemon --exec electron .",
+    "publish": "electron-builder --publish always"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "better-sqlite3": "^12.8.0",
+    "electron": "^41.1.1",
+    "sqlite3": "^6.0.1",
+    "sweetalert2": "^11.26.24"
+  },
+  "devDependencies": {
+    "electron-builder": "^25.1.8",
+    "nodemon": "^3.1.14"
+  },
+  "build": {
+    "appId": "com.youtube.downloader.v2",
+    "productName": "YoutubeDownload V2",
+    "directories": {
+      "output": "dist",
+      "buildResources": "icons"
+    },
+    "win": {
+      "target": "nsis",
+      "icon": "icons/icono-app.ico"
+    },
+    "linux": {
+      "target": "deb",
+      "category": "Utility",
+      "icon": "icons/icono-app.png"
+    },
+    "files": [
+      "**/*",
+      "!dist",
+      "!.github"
+    ]
+  }
+}
