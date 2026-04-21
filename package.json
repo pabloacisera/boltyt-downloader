@@ -1,7 +1,7 @@
 {
-  "name": "youtube_download_app",
-  "version": "1.0.0",
-  "description": "",
+  "name": "bolt-downloader",
+  "version": "1.0.1",
+  "description": "A fast and lightweight desktop download manager built with Electron and SQLite",
   "main": "main.js",
   "type": "module",
   "scripts": {
@@ -14,17 +14,16 @@
   "license": "ISC",
   "dependencies": {
     "better-sqlite3": "^12.8.0",
-    "electron": "^41.1.1",
-    "sqlite3": "^6.0.1",
     "sweetalert2": "^11.26.24"
   },
   "devDependencies": {
+    "electron": "^41.1.1",
     "electron-builder": "^25.1.8",
     "nodemon": "^3.1.14"
   },
   "build": {
-    "appId": "com.youtube.downloader.v2",
-    "productName": "YoutubeDownload V2",
+    "appId": "com.pabloacisera.boltyt",
+    "productName": "Bolt Downloader",
     "directories": {
       "output": "dist",
       "buildResources": "icons"
@@ -41,7 +40,8 @@
     "files": [
       "**/*",
       "!dist",
-      "!.github"
+      "!.github",
+      "!node_modules/electron"
     ]
   }
 }
