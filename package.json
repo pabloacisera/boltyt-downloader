@@ -3,6 +3,7 @@
   "version": "1.0.1",
   "description": "A fast and lightweight desktop download manager built with Electron and SQLite",
   "main": "main.js",
+  "author": "randomdev",
   "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
