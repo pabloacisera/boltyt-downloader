@@ -30,7 +30,8 @@
     "extraResources": [
       {
         "from": "bin/",
-        "to": "bin/"
+        "to": "bin/",
+        "filter": ["**/*"]
       }
     ],
     "directories": {

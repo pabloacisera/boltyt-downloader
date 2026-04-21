@@ -29,6 +29,10 @@ jobs:
       - name: Install dependencies
         run: npm install
 
+      - name: Set bin permissions
+        if: matrix.os == 'ubuntu-latest'
+        run: chmod +x bin/yt-dlp bin/node
+
       - name: Build and Publish
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
