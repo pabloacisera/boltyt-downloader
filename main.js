@@ -445,15 +445,31 @@ ipcMain.on("delete-video", async (event, id) => {
 
         downloadRepository.deleteVideo(id);
 
-        const directory = video.file_path;
+        const filePath = video.file_path;
+
+        if (fs.existsSync(filePath)) {
+            const stat = fs.lstatSync(filePath);
+
+            if (stat.isFile()) {
+                // file_path apunta directamente al archivo (registros nuevos)
+                fs.unlinkSync(filePath);
+                event.reply("delete-success", `Video eliminado: ${video.title}`);
+                return;
+            }
+        }
+
+        // Fallback: file_path es un directorio (registros viejos)
+        const directory = fs.existsSync(filePath) && fs.lstatSync(filePath).isDirectory()
+            ? filePath
+            : dirname(filePath);
+
         if (fs.existsSync(directory)) {
             const files = fs.readdirSync(directory);
             const sanitizedTitle = video.title.replace(/[\\/:*?"<>|]/g, "_");
             const matchingFile = files.find(f => f.includes(sanitizedTitle));
-            
+
             if (matchingFile) {
-                const fullPath = join(directory, matchingFile);
-                fs.unlinkSync(fullPath);
+                fs.unlinkSync(join(directory, matchingFile));
                 event.reply("delete-success", `Video eliminado: ${video.title}`);
             } else {
                 event.reply("delete-warning", "Registro eliminado, pero no se encontró el archivo local.");
