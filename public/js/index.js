@@ -37,7 +37,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 statusText.textContent = `Sin Sesión: ${status.browser}`;
             } else {
                 statusText.textContent = 'Configurar Navegador';
-                promptBrowserSelection();
+                promptSettings()
             }
         }
     });
