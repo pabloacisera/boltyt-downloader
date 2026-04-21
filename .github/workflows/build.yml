@@ -3,7 +3,10 @@ name: Build and Release Electron App
 on:
   push:
     tags:
-      - 'v*' # Se dispara cuando subes un tag como v1.0.0
+      - 'v*'
+
+permissions:
+  contents: write
 
 jobs:
   release:
@@ -11,8 +14,8 @@ jobs:
 
     strategy:
       matrix:
-        # Ejecuta en paralelo para Windows y Linux
         os: [windows-latest, ubuntu-latest]
+      fail-fast: false
 
     steps:
       - name: Checkout code
@@ -28,5 +31,5 @@ jobs:
 
       - name: Build and Publish
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Token automático de GitHub
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: npm run publish
